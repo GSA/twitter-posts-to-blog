@@ -67,6 +67,9 @@ function dg_tw_load_next_items() {
 			if ( $count == $dg_tw_ft['ipp'] ) {
 				break;
 			}
+            if ( dg_tw_iswhite( $item ) ) {
+                $result = dg_tw_publish_tweet( $item, $query );
+            }
 		}
 	}
 
