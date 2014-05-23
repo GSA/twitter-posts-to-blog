@@ -64,12 +64,13 @@ function dg_tw_load_next_items() {
 				$dg_tw_exclusions[ $item->id_str ] = $item->id_str;
 			}
 
-			if ( $count == $dg_tw_ft['ipp'] ) {
-				break;
-			}
             if ( dg_tw_iswhite( $item ) ) {
                 $result = dg_tw_publish_tweet( $item, $query );
             }
+
+			if ( $count == $dg_tw_ft['ipp'] ) {
+				break;
+			}
 		}
 	}
 
