@@ -1,0 +1,7 @@
+{
+    "name": "gsa/twitter-posts-to-blog",
+    "type": "wordpress-plugin",
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
