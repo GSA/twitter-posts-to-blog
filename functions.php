@@ -16,71 +16,26 @@ function dg_tw_load_next_items() {
 	if ( empty( $dg_tw_exclusions ) ) {
 		$dg_tw_exclusions = array();
 	}
-
 	$mega_tweet = array();
-
 	foreach ( $dg_tw_queryes as $slug => $query ) {
 		$parameters = array(
-			'q'                => $query['value'],
-			'since_id'         => $query['last_id'],
-			'include_entities' => true,
-			'count'            => $dg_tw_ft['ipp']
+            'count'            => 200
 		);
 
 		$count = 0;
 
-		error_log( 'Loop query string \n' );
-		$dg_tw_data = $connection->get( 'search/tweets', $parameters );
-
+		$dg_tw_data = $connection->get( 'statuses/user_timeline', $parameters );
 		//Set the last tweet id
-		if ( count( $dg_tw_data->statuses ) ) {
-			$status                                                   = end( $dg_tw_data->statuses );
+		if ( count( $dg_tw_data) ) {
+            $status= end( $dg_tw_data );
 			$dg_tw_queryes[ urlencode( $query['value'] ) ]['last_id'] = $status->id_str;
 		}
-
-		foreach ( $dg_tw_data->statuses as $key => $item ) {
+		foreach ( $dg_tw_data as $item ) {
 			$count ++;
-
-			if ( $dg_tw_ft['exclude_retweets'] && isset( $item->retweeted_status ) ) {
-				continue;
-			}
-
-			if ( $dg_tw_ft['exclude_no_images'] && ! count( $item->entities->media ) ) {
-				continue;
-			}
-
-			if ( ! isset( $dg_tw_ft['method'] ) || $dg_tw_ft['method'] == 'multiple' ) {
-				if ( dg_tw_iswhite( $item ) ) {
 					$result = dg_tw_publish_tweet( $item, $query );
-				} //iswhite
-			} elseif ( ! in_array( $item->id_str, $dg_tw_exclusions ) ) {
-				$mega_tweet[] = array(
-					'text'       => $item->text,
-					'author'     => isset( $item->user->display_name ) ? $item->user->display_name : $item->user->name,
-					'id'         => $item->id_str,
-					'created_at' => $item->created_at
-				);
-
-				$dg_tw_exclusions[ $item->id_str ] = $item->id_str;
-			}
-
-            if ( dg_tw_iswhite( $item ) ) {
-                $result = dg_tw_publish_tweet( $item, $query );
-            }
-
-			if ( $count == $dg_tw_ft['ipp'] ) {
-				break;
-			}
 		}
 	}
-
 	update_option( 'dg_tw_queryes', $dg_tw_queryes );
-
-	if ( ! empty( $mega_tweet ) ) {
-		dg_tw_publish_mega_tweet( $mega_tweet );
-
-		update_option( 'dg_tw_exclusions', $dg_tw_exclusions );
-	}
 }
 
 /*
@@ -555,7 +510,7 @@ function dg_tw_options() {
 /*
  * Create post from tweet
  */
-function dg_tw_publish_tweet( $tweet, $query = false ) {
+function dg_tw_publish_tweet( $tweet=array(), $query = false ) {
 	global $dg_tw_queryes, $dg_tw_publish, $dg_tw_tags, $dg_tw_cats, $dg_tw_ft, $wpdb;
 
 	$post_type        = isset( $dg_tw_ft['post_type'] ) ? $dg_tw_ft['post_type'] : 'post';
@@ -564,7 +519,6 @@ function dg_tw_publish_tweet( $tweet, $query = false ) {
 	$current_query    = ( $query != false ) ? $query : array( 'tag' => '', 'value' => '' );
 	$tweet_time       = strtotime( $tweet->created_at );
 	$tweet_date       = date( "Y-m-d H:i:s", $tweet_time );
-
 	$querystr = "SELECT *
 					FROM $wpdb->postmeta
 					WHERE (meta_key = 'dg_tw_id' AND meta_value = '" . (int) $tweet->id_str . "')
@@ -609,6 +563,7 @@ function dg_tw_publish_tweet( $tweet, $query = false ) {
 			'post_date'    => $tweet_date
 
 		);
+
 
 		$post = apply_filters( 'dg_tw_before_post_tweet', $post );
 
