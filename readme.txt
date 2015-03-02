@@ -1,5 +1,5 @@
 === Twitter posts to Blog ===
-Contributors: badbreze,sforsberg
+Contributors: badbreze,sforsberg,sudocat
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=QV5Y8ZNVWGEA8
 Tags: twitter, autopost
 Tested up to: 3.6
@@ -199,7 +199,13 @@ The avatar url of the author
 == Changelog ==
 
 = What Next =
-* Dont know, waiting featire request
+* Dont know
+
+= 1.11.22 =
+* LANG: prepare for translation
+
+= 1.11.21 =
+* FIX: sudocat code submission to fix some problems
 
 = 1.11.20 =
 * NEW: shortcode for date
@@ -346,11 +352,3 @@ The avatar url of the author
 
 = 0.1 =
 * Initial relase.
-
-SELECT DISTINCT ID, post_title FROM wp_posts as p
-INNER JOIN wp_term_relationships AS tr ON
-(p.ID = tr.object_id AND
-tr.term_taxonomy_id IN (3,5,6,7) )
-INNER JOIN wp_term_taxonomy AS tt ON
-(tr.term_taxonomy_id = tt.term_taxonomy_id AND
-taxonomy = 'category');
