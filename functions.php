@@ -1,11 +1,5 @@
 <?php
 /*
- * Autopost fix by sudocat
- */
-require_once(dirname(__FILE__) . '/../../../wp-load.php');
-require_once(dirname(__FILE__) . '/../../../wp-admin/includes/admin.php');
-
-/*
  * SETUP THE CRON
  */
 
