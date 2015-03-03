@@ -528,96 +528,92 @@ function dg_tw_publish_tweet( $tweet=array(), $query = false ) {
 	$author_tag = ( ! empty( $dg_tw_ft['authortag'] ) ) ? ',' . $username : '';
 	$post_tags  = htmlspecialchars( $dg_tw_tags . ',' . $current_query['tag'] . $author_tag );
 
-	if ( ! count( $postid ) ) {
-		$tweet_content = dg_tw_regexText( $tweet->text );
-		$post_title    = filter_text( $tweet, $dg_tw_ft['title_format'], "", $dg_tw_ft['maxtitle'], $dg_tw_ft['title_remove_url'] );
-		$post_content  = filter_text( $tweet, $dg_tw_ft['body_format'], $tweet_content );
+    $tweet_content = dg_tw_regexText( $tweet->text );
+    $post_title    = filter_text( $tweet, $dg_tw_ft['title_format'], "", $dg_tw_ft['maxtitle'], $dg_tw_ft['title_remove_url'] );
+    $post_content  = filter_text( $tweet, $dg_tw_ft['body_format'], $tweet_content );
 
-		do_action( 'dg_tw_before_images_placed' );
+    do_action( 'dg_tw_before_images_placed' );
 
-		if ( strstr( $post_content, '%tweet_images%' ) || $dg_tw_ft['featured_image'] ) {
-			$images_list = dg_tw_put_attachments( $dg_tw_start_post->ID, $tweet );
+    if ( strstr( $post_content, '%tweet_images%' ) || $dg_tw_ft['featured_image'] ) {
+        $images_list = dg_tw_put_attachments( $dg_tw_start_post->ID, $tweet );
 
-			if ( $dg_tw_ft['featured_image'] ) {
-				set_post_thumbnail( $dg_tw_start_post->ID, end( $images_list['ids'] ) );
-			}
+        if ( $dg_tw_ft['featured_image'] ) {
+            set_post_thumbnail( $dg_tw_start_post->ID, end( $images_list['ids'] ) );
+        }
 
-			$post_content = str_replace( '%tweet_images%', $images_list['html'], $post_content );
+        $post_content = str_replace( '%tweet_images%', $images_list['html'], $post_content );
 
-			do_action( 'dg_tw_images_placed' );
-		}
-		$post_status = strval( $dg_tw_publish );
-		if ( $username == "usdatagov" ) {
-			$post_status = "publish";
-		}
-		$post = array(
-			'ID'           => $dg_tw_start_post->ID,
-			'post_author'  => $dg_tw_ft['author'],
-			'post_content' => $post_content,
-			'post_name'    => dg_tw_slug( $post_title ),
-			'post_status'  => $post_status,
-			'post_title'   => $post_title,
-			//'post_category'	=> $dg_tw_cats,
-			'tags_input'   => $post_tags,
-			'post_type'    => $post_type,
-			'post_date'    => $tweet_date
+        do_action( 'dg_tw_images_placed' );
+    }
+    $post_status = strval( $dg_tw_publish );
+    if ( $username == "usdatagov" ) {
+        $post_status = "publish";
+    }
+    $post = array(
+        'ID'           => $dg_tw_start_post->ID,
+        'post_author'  => $dg_tw_ft['author'],
+        'post_content' => $post_content,
+        'post_name'    => dg_tw_slug( $post_title ),
+        'post_status'  => $post_status,
+        'post_title'   => $post_title,
+        //'post_category'	=> $dg_tw_cats,
+        'tags_input'   => $post_tags,
+        'post_type'    => $post_type,
+        'post_date'    => $tweet_date
 
-		);
-
-
-		$post = apply_filters( 'dg_tw_before_post_tweet', $post );
-
-		$dg_tw_this_post = wp_insert_post( $post, true );
-		//adding category after the post insert.
-		$tags = wp_get_post_tags( $dg_tw_this_post );
-		foreach ( $tags as $tag ) {
-			switch ( $tag->name ) {
-				case "SafetyDataGov":
-					$category_id = get_cat_ID( "safety" );
-					break;
-				case "usdatagov":
-					$category_id = get_cat_ID( "developers" );
-					break;
-				case "HealthDataGov":
-					$category_id = get_cat_ID( "health" );
-					break;
-				case "energydatagov":
-					$category_id = get_cat_ID( "energy" );
-					break;
-				default:
-					$category_id = "";
-			}
-		}
-		wp_set_post_categories( $dg_tw_this_post, array( $category_id ) );
+    );
 
 
-		do_action( 'dg_tw_after_post_published', $dg_tw_this_post );
+    $post = apply_filters( 'dg_tw_before_post_tweet', $post );
 
-		if ( $dg_tw_this_post ) {
-			//Set the format of a post
-			$format = ( isset( $dg_tw_ft['format'] ) ) ? $dg_tw_ft['format'] : 'standard';
-			set_post_format( $dg_tw_this_post, $format );
+    $dg_tw_this_post = wp_insert_post( $post, true );
+    //adding category after the post insert.
+    $tags = wp_get_post_tags( $dg_tw_this_post );
+    foreach ( $tags as $tag ) {
+        switch ( $tag->name ) {
+            case "SafetyDataGov":
+                $category_id = get_cat_ID( "safety" );
+                break;
+            case "usdatagov":
+                $category_id = get_cat_ID( "developers" );
+                break;
+            case "HealthDataGov":
+                $category_id = get_cat_ID( "health" );
+                break;
+            case "energydatagov":
+                $category_id = get_cat_ID( "energy" );
+                break;
+            default:
+                $category_id = "";
+        }
+    }
+    wp_set_post_categories( $dg_tw_this_post, array( $category_id ) );
 
-			/*POST METAS*/
-			$query_string = urlencode( $current_query['value'] );
-			$query_string = ( $query != false ) ? $query['value'] : $query_string;
 
-			add_post_meta( $dg_tw_this_post, 'dg_tw_query', $query_string );
-			add_post_meta( $dg_tw_this_post, 'dg_tw_id', $tweet->id_str );
-			add_post_meta( $dg_tw_this_post, 'dg_tw_author', $username );
-			add_post_meta( $dg_tw_this_post, 'dg_tw_author_avatar', $tweet->user->profile_image_url_https );
-			/*END POST METAS*/
+    do_action( 'dg_tw_after_post_published', $dg_tw_this_post );
 
-			// adding acf values
-			$tweet_url = 'https://twitter.com/' . $username . '/status/' . $tweet->id_str;
-			update_field( "field_5176000e6c97e", $username, $dg_tw_this_post );
-			update_field( "field_517600256c97f", $username, $dg_tw_this_post );
-			update_field( "field_517600346c980", $tweet->user->profile_image_url_https, $dg_tw_this_post );
-			update_field( "field_517600586c981", $tweet_url, $dg_tw_this_post );
-		}
-	} else {
-		return "already";
-	}
+    if ( $dg_tw_this_post ) {
+        //Set the format of a post
+        $format = ( isset( $dg_tw_ft['format'] ) ) ? $dg_tw_ft['format'] : 'standard';
+        set_post_format( $dg_tw_this_post, $format );
+
+        /*POST METAS*/
+        $query_string = urlencode( $current_query['value'] );
+        $query_string = ( $query != false ) ? $query['value'] : $query_string;
+
+        add_post_meta( $dg_tw_this_post, 'dg_tw_query', $query_string );
+        add_post_meta( $dg_tw_this_post, 'dg_tw_id', $tweet->id_str );
+        add_post_meta( $dg_tw_this_post, 'dg_tw_author', $username );
+        add_post_meta( $dg_tw_this_post, 'dg_tw_author_avatar', $tweet->user->profile_image_url_https );
+        /*END POST METAS*/
+
+        // adding acf values
+        $tweet_url = 'https://twitter.com/' . $username . '/status/' . $tweet->id_str;
+        update_field( "field_5176000e6c97e", $username, $dg_tw_this_post );
+        update_field( "field_517600256c97f", $username, $dg_tw_this_post );
+        update_field( "field_517600346c980", $tweet->user->profile_image_url_https, $dg_tw_this_post );
+        update_field( "field_517600586c981", $tweet_url, $dg_tw_this_post );
+    }
 
 	return "true";
 }
@@ -708,11 +704,11 @@ function dg_tw_regexText( $string ) {
 	}
 
 	if ( $dg_tw_ft['link_urls'] ) {
-		$string = preg_replace( "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"_blank\">\\0</a>", $string );
+		//$string = preg_replace( "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"_blank\">\\0</a>", $string );
 	}
 
 	if ( $dg_tw_ft['link_mentions'] ) {
-		$string = preg_replace( '|@(\w+)|', '<a href="http://twitter.com/$1" target="_blank">@$1</a>', $string );
+		//$string = preg_replace( '|@(\w+)|', '<a href="http://twitter.com/$1" target="_blank">@$1</a>', $string );
 	}
 
 	if ( $dg_tw_ft['link_hashtag'] ) {
