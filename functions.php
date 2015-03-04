@@ -528,7 +528,7 @@ function dg_tw_publish_tweet( $tweet=array(), $query = false ) {
 	$post_tags  = htmlspecialchars( $dg_tw_tags . ',' . $current_query['tag'] . $author_tag );
 
 	if ( ! count( $postid ) ) {
-		$tweet_content = dg_tw_regexText( $tweet->text );
+		$tweet_content = $tweet->textsss;
 		$post_title    = filter_text( $tweet, $dg_tw_ft['title_format'], "", $dg_tw_ft['maxtitle'], $dg_tw_ft['title_remove_url'] );
 		$post_content  = filter_text( $tweet, $dg_tw_ft['body_format'], $tweet_content );
 
@@ -707,7 +707,7 @@ function dg_tw_regexText( $string ) {
 	}
 
 	if ( $dg_tw_ft['link_urls'] ) {
-		//$string = preg_replace( "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"_blank\">\\0</a>", $string );
+		$string = preg_replace( "/(?<!a href=\")(?<!src=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\" target=\"_blank\">\\0</a>", $string );
 	}
 
 	if ( $dg_tw_ft['link_mentions'] ) {
