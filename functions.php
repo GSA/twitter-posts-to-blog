@@ -323,10 +323,10 @@ function dg_tw_activation() {
 			'maxtitle'     => '60'
 		) );
 	}
-
-	if ( ! wp_next_scheduled( 'dg_tw_event_start' ) ) {
+    if ( ! wp_next_scheduled( 'dg_tw_event_start' ) ) {
         wp_schedule_event( time(), 'hourly','dg_tw_event_start' );
-	}
+
+    }
 }
 
 /*
