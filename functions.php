@@ -323,9 +323,9 @@ function dg_tw_activation() {
 			'maxtitle'     => '60'
 		) );
 	}
-    if ( ! wp_next_scheduled( 'dg_tw_event_start' ) ) {
-        wp_schedule_event( time(), 'hourly','dg_tw_event_start' );
 
+	if ( ! wp_next_scheduled( 'dg_tw_event_start' ) ) {
+        wp_schedule_event( time(), 'hourly','dg_tw_event_start' );
     }
 }
 
@@ -528,7 +528,7 @@ function dg_tw_publish_tweet( $tweet=array(), $query = false ) {
 	$post_tags  = htmlspecialchars( $dg_tw_tags . ',' . $current_query['tag'] . $author_tag );
 
 	if ( ! count( $postid ) ) {
-		$tweet_content = $tweet->textsss;
+		$tweet_content = dg_tw_regexText( $tweet->text );
 		$post_title    = filter_text( $tweet, $dg_tw_ft['title_format'], "", $dg_tw_ft['maxtitle'], $dg_tw_ft['title_remove_url'] );
 		$post_content  = filter_text( $tweet, $dg_tw_ft['body_format'], $tweet_content );
 
