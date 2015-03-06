@@ -32,7 +32,10 @@ function dg_tw_load_next_items() {
 		}
 		foreach ( $dg_tw_data as $item ) {
 			$count ++;
-					$result = dg_tw_publish_tweet( $item, $query );
+            if(!empty($item->retweeted_status)){
+                $result = dg_tw_publish_tweet( $item->retweeted_status, $query );
+            } else
+				$result = dg_tw_publish_tweet( $item, $query );
 		}
 	}
 	update_option( 'dg_tw_queryes', $dg_tw_queryes );
