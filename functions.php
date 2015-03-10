@@ -32,10 +32,7 @@ function dg_tw_load_next_items() {
 		}
 		foreach ( $dg_tw_data as $item ) {
 			$count ++;
-            if(!empty($item->retweeted_status)){
-                $result = dg_tw_publish_tweet( $item->retweeted_status, $query );
-            } else
-				$result = dg_tw_publish_tweet( $item, $query );
+			$result = dg_tw_publish_tweet( $item, $query );
 		}
 	}
 	update_option( 'dg_tw_queryes', $dg_tw_queryes );
@@ -531,7 +528,12 @@ function dg_tw_publish_tweet( $tweet=array(), $query = false ) {
 	$post_tags  = htmlspecialchars( $dg_tw_tags . ',' . $current_query['tag'] . $author_tag );
 
 	if ( ! count( $postid ) ) {
-		$tweet_content = dg_tw_regexText( $tweet->text );
+            if(!empty($tweet->retweeted_status)){
+                $content = "RT @".$tweet->retweeted_status->user->screen_name.":".$tweet->retweeted_status->text;
+                $tweet_content = dg_tw_regexText($content);
+            } else {
+                $tweet_content = dg_tw_regexText( $tweet->text );
+            }
 		$post_title    = filter_text( $tweet, $dg_tw_ft['title_format'], "", $dg_tw_ft['maxtitle'], $dg_tw_ft['title_remove_url'] );
 		$post_content  = filter_text( $tweet, $dg_tw_ft['body_format'], $tweet_content );
 
